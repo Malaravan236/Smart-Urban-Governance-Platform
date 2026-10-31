@@ -4,3 +4,4 @@ media/
 .env
 venv/
 node_modules/
+*.pyc

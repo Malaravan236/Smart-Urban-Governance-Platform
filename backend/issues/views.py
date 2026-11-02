@@ -17,6 +17,20 @@ class IssueViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'description']
     ordering_fields = ['created_at', 'support_count']
 
+    def get_permissions(self):
+        if self.action == 'destroy':
+            return [permissions.IsAuthenticated()]
+        return super().get_permissions()
+
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user and not self.request.user.is_staff:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied(
+                "You can only delete your own issues."
+            )
+
+        instance.delete()
+
     def perform_create(self, serializer):
         lat = serializer.validated_data.get('latitude')
         lon = serializer.validated_data.get('longitude')
